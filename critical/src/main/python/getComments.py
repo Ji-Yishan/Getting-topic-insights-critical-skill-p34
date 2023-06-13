@@ -1,15 +1,16 @@
 import requests
 from bs4 import BeautifulSoup
 import sys
-a=sys.argv[1]
-address=f"https://movie.douban.com/subject/{a}/comments?start=0&limit=20&status=P&sort=new_score"
+name=sys.argv[1]
+num=int(sys.argv[2])
+address=f"https://movie.douban.com/subject/{name}/comments?start=0&limit=20&status=P&sort=new_score"
 print(address)
 def getComments(address):
     headers={
-        "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/113.0"
+        "User-Agent":"please put your user agent here"
     }
 
-    for start in range(0, 200, 20):
+    for start in range(0, num, 20):
         response = requests.get(
         address, headers=headers)
         html = response.text

@@ -1,60 +1,107 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
+<html lang="en">
 <head>
-    <title>书籍列表</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 引入 Bootstrap -->
-    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <title>电影关键词词云图</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.2.2/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.0.0/dist/echarts-wordcloud.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        #wordcloud {
+            margin: 50px auto;
+        }
+        h1, p {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
+<h1  id="t1"></h1>
+<p id="p1"></p>
+<div id="wordcloud" style="width: 100%; height: 600px;"></div>
 
-<div class="container">
+<script>
 
-    <div class="row clearfix">
-        <div class="col-md-12 column">
-            <div class="page-header">
-                <h1>
-                    <small>书籍列表 —— 显示所有书籍</small>
-                </h1>
-            </div>
-        </div>
-    </div>
+    $(document).ready(function () {
 
-    <div class="row">
-        <div class="col-md-4 column">
-            <a class="btn btn-primary" href="${pageContext.request.contextPath}/book/toAddBook">新增</a>
-        </div>
-    </div>
+        $.ajax({
+            url: '${pageContext.request.contextPath}/p34/book/showTop10',
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                console.log(data);
+                // 电影关键词
+                var movieKeywords = [];
+                if(data){
+                    movieKeywords=[];
+                    for (var i = 0; i < data.length; i++) {
+                        movieKeywords.push( { name: data[i].name, value: data[i].times })
+                    }
+                }
 
-    <div class="row clearfix">
-        <div class="col-md-12 column">
-            <table class="table table-hover table-striped">
-                <thead>
-                <tr>
-                    <th>书籍编号</th>
-                    <th>书籍名字</th>
-                    <th>书籍数量</th>
-                    <th>书籍详情</th>
-                    <th>操作</th>
-                </tr>
-                </thead>
+                // 初始化ECharts实例
+                var chart = echarts.init(document.getElementById("wordcloud"));
 
-                <tbody>
-                <c:forEach var="book" items="${requestScope.get('list')}">
-                    <tr>
-                        <td>${book.getBookID()}</td>
-                        <td>${book.getBookName()}</td>
-                        <td>${book.getBookCounts()}</td>
-                        <td>${book.getDetail()}</td>
-                        <td>
-                            <a href="${pageContext.request.contextPath}/book/toUpdateBook?id=${book.getBookID()}">更改</a> |
-                            <a href="${pageContext.request.contextPath}/book/del/${book.getBookID()}">删除</a>
-                        </td>
-                    </tr>
-                </c:forEach>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+                // 配置ECharts选项
+                var option = {
+                    series: [
+                        {
+                            type: "wordCloud",
+                            gridSize: 20,
+                            sizeRange: [50, 200],
+                            rotationRange: [0, 0],
+                            shape: "pentagon",
+                            width: "100%",
+                            height: "100%",
+                            textStyle: {
+                                color: function () {
+                                    var colors = [
+                                        "#f44329", "#de71a6", "#c073cb", "#a790d7", "#3f51b5",
+                                        "#70ade1", "#3c96bd", "#4cc4d7", "#489f97", "#4caf50",
+                                        "#8bc34a", "#bac25c", "#dacb4f", "#f5c32c", "#ff9800",
+                                        "#b76e57", "#8d5847", "#9f9d9d", "#607d8b"
+                                    ];
+                                    return colors[Math.floor(Math.random() * colors.length)];
+                                },
+                            },
+                            data: movieKeywords,
+                        },
+                    ],
+                };
+
+                // 使用配置的选项渲染图表
+                chart.setOption(option);
+
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                // 请求失败时的回调函数
+                console.log('Error: ' + errorThrown);
+            }
+        });
+
+
+
+
+
+
+    });
+
+
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
+
+
+</script>
+</body>
+</html>

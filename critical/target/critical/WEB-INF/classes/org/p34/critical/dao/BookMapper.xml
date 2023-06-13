@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.p34.critical.dao.BookMapper">
+
+    <resultMap id="bookResult" type="org.p34.critical.pojo.Books">
+        <result column="name" property="name"/>
+        <result column="times" property="times"/>
+    </resultMap>
+    <update id="upDateBook" parameterType="String">
+        update douban.results set times= times+1 where `name` = #{word};
+    </update>
+    <insert id="insertBook" parameterType="String">
+        insert into douban.results(`name`)
+        values (#{word});
+    </insert>
+    <select id="showTop10" resultMap="bookResult">
+        select `name`, `times`
+        from douban.results
+        order by `times` desc limit 0,10;
+    </select>
+    <delete id="delete">
+        delete from douban.results where 1=1;
+    </delete>
+</mapper>
